@@ -5,8 +5,10 @@ import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
+// @ts-ignore
+import { EXPO_PUBLIC_SUPPORT_EMAIL } from '@env';
 
-const SUPPORT_EMAIL = process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'info@bdmachinetools.com';
+const SUPPORT_EMAIL = EXPO_PUBLIC_SUPPORT_EMAIL || process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'info@bdmachinetools.com';
 
 const SiteSettingsScreen = ({ navigation }: any) => {
   const [copyright, setCopyright] = useState('© 2026 BD Machine Tools. All Rights Reserved.');

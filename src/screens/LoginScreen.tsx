@@ -9,8 +9,11 @@ import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import CustomButton from '../components/CustomButton';
 import CustomInput from '../components/CustomInput';
+import { encode } from 'base-64';
 
 const { width, height } = Dimensions.get('window');
+
+const SITE_URL = process.env.EXPO_PUBLIC_SITE_URL || 'https://bdmachinetools.com';
 
 const LoginScreen = ({ navigation }: any) => {
   const [username, setUsername] = useState('');
@@ -32,19 +35,52 @@ const LoginScreen = ({ navigation }: any) => {
     
     setLoading(true);
     try {
-      await AsyncStorage.setItem('isLoggedIn', 'true');
-      Toast.show({
-        type: 'success',
-        text1: 'Login Successful',
-        text2: 'Welcome back to the Admin Hub',
-        position: 'bottom'
+      // Create Basic Auth header from user's WordPress credentials
+      const auth = encode(`${username}:${password}`);
+      
+      // We verify the credentials by calling the 'users/me' endpoint
+      const response = await fetch(`${SITE_URL}/wp-json/wp/v2/users/me`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Basic ${auth}`,
+          'Content-Type': 'application/json',
+        },
       });
-      navigation.replace('Main');
+
+      const data = await response.json();
+
+      if (response.status === 200 && (data.roles.includes('administrator') || data.roles.includes('shop_manager'))) {
+        await AsyncStorage.setItem('isLoggedIn', 'true');
+        await AsyncStorage.setItem('user_data', JSON.stringify(data));
+        
+        Toast.show({
+          type: 'success',
+          text1: 'Access Granted',
+          text2: `Welcome back, ${data.name}`,
+          position: 'bottom'
+        });
+        navigation.replace('Main');
+      } else if (response.status === 200) {
+        Toast.show({
+          type: 'error',
+          text1: 'Access Denied',
+          text2: 'You do not have permission to access this hub.',
+          position: 'bottom'
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Login Failed',
+          text2: 'Invalid username or password. Please try again.',
+          position: 'bottom'
+        });
+      }
     } catch (error) {
+      console.error('Login error:', error);
       Toast.show({
         type: 'error',
-        text1: 'Login Failed',
-        text2: 'Please check your credentials and try again.',
+        text1: 'Connection Error',
+        text2: 'Could not connect to the site. Please check your internet.',
         position: 'bottom'
       });
     } finally {
