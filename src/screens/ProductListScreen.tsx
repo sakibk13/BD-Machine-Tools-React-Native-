@@ -342,9 +342,14 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     height: CARD_WIDTH - 16,
-    borderRadius: 18,
+    borderRadius: (CARD_WIDTH - 16) / 2, // Perfect circle
     overflow: 'hidden',
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.white,
+    padding: 8, // Padding ensures the "full pic" comes in the circle
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   productImage: {
     width: '100%',

@@ -161,11 +161,20 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logoContainer: {
-    width: 150,
-    height: 150,
+    width: 160,
+    height: 160,
+    borderRadius: 80, // Perfect circle
+    backgroundColor: Colors.white,
+    padding: 15, // Padding ensures the logo doesn't touch the circle edges
     marginBottom: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+    overflow: 'hidden',
   },
   logo: {
     width: '100%',

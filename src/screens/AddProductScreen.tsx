@@ -9,8 +9,7 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import api from '../utils/api';
 
-// @ts-ignore
-import { SITE_URL } from '@env';
+const SITE_URL = process.env.EXPO_PUBLIC_SITE_URL || 'https://bdmachinetools.com';
 
 import Toast from 'react-native-toast-message';
 

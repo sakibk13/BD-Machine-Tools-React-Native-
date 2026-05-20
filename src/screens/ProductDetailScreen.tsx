@@ -4,8 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
 import api from '../utils/api';
-// @ts-ignore
-import { SITE_URL } from '@env';
+
+const SITE_URL = process.env.EXPO_PUBLIC_SITE_URL || 'https://bdmachinetools.com';
 
 import Toast from 'react-native-toast-message';
 

@@ -2,8 +2,8 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Colors } from '../theme/colors';
-// @ts-ignore
-import { ADMIN_URL } from '@env';
+
+const ADMIN_URL = process.env.EXPO_PUBLIC_ADMIN_URL || 'https://bdmachinetools.com/wp-admin/';
 
 const WebAdminScreen = () => {
   return (

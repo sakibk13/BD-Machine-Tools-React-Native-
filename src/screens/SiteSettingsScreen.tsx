@@ -5,14 +5,14 @@ import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-// @ts-ignore
-import { SUPPORT_EMAIL } from '@env';
+
+const SUPPORT_EMAIL = process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'info@bdmachinetools.com';
 
 const SiteSettingsScreen = ({ navigation }: any) => {
   const [copyright, setCopyright] = useState('© 2026 BD Machine Tools. All Rights Reserved.');
   const [address, setAddress] = useState('123 Industrial Area, Dhaka, Bangladesh');
   const [phone, setPhone] = useState('+880 1234-567890');
-  const [email, setEmail] = useState(SUPPORT_EMAIL || 'info@bdmachinetools.com');
+  const [email, setEmail] = useState(SUPPORT_EMAIL);
   const [loading, setLoading] = useState(false);
 
   const handleUpdate = () => {

@@ -8,8 +8,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import api from '../utils/api';
-// @ts-ignore
-import { SITE_URL } from '@env';
+
+const SITE_URL = process.env.EXPO_PUBLIC_SITE_URL || 'https://bdmachinetools.com';
 
 const { width } = Dimensions.get('window');
 
