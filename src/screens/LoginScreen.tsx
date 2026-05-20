@@ -51,6 +51,8 @@ const LoginScreen = ({ navigation }: any) => {
 
       if (response.status === 200 && (data.roles.includes('administrator') || data.roles.includes('shop_manager'))) {
         await AsyncStorage.setItem('isLoggedIn', 'true');
+        // Store credentials for the session to be used by the API utility
+        await AsyncStorage.setItem('user_auth', auth);
         await AsyncStorage.setItem('user_data', JSON.stringify(data));
         
         Toast.show({
@@ -64,16 +66,16 @@ const LoginScreen = ({ navigation }: any) => {
         Toast.show({
           type: 'error',
           text1: 'Access Denied',
-          text2: 'You do not have permission to access this hub.',
+          text2: 'Only Admins can access this hub.',
           position: 'bottom'
         });
       } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Login Failed',
-          text2: 'Invalid username or password. Please try again.',
-          position: 'bottom'
-        });
+        console.log('Login failed status:', response.status, data);
+        Alert.alert(
+          'Login Failed',
+          'Invalid credentials. \n\nTIP: If your site has extra security, please use an "Application Password" from your WordPress profile (Users > Profile > Application Passwords).',
+          [{ text: 'OK' }]
+        );
       }
     } catch (error) {
       console.error('Login error:', error);
