@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, ActivityIndicator, Platform, TextInput } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -253,7 +253,7 @@ const AddProductScreen = ({ navigation }: any) => {
           <View style={{ marginTop: 10 }}>
             <CustomInput
               label="Technical Description"
-              placeholder="Enter machine specifications, dimensions, and power requirements..."
+              placeholder="Enter machine specifications..."
               value={description}
               onChangeText={setDescription}
               // @ts-ignore

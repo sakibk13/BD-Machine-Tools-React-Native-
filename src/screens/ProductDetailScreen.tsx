@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert, Pla
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
+import { Typography } from '../theme/typography';
 import api from '../utils/api';
 // @ts-ignore
 import { EXPO_PUBLIC_SITE_URL } from '@env';
@@ -135,7 +136,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Technical Data</Text>
             <Text style={styles.description}>
-              {product.description?.replace(/<[^>]*>?/gm, '') || 'Technical specifications are currently being updated by the engineering team.'}
+              {product.description?.replace(/<[^>]*>?/gm, '') || 'Specifications are currently being updated.'}
             </Text>
           </View>
 
@@ -169,7 +170,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
             </View>
             <Text style={styles.modalTitle}>Purge Confirmation</Text>
             <Text style={styles.modalDesc}>
-              This will permanently terminate this machine entry from the cloud database. This operation is irreversible.
+              This will permanently terminate this machine entry from the cloud database.
             </Text>
             <View style={styles.modalActions}>
               <TouchableOpacity 
@@ -186,7 +187,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                 {deleteMutation.isPending ? (
                   <ActivityIndicator color={Colors.white} size="small" />
                 ) : (
-                  <Text style={styles.confirmBtnText}>CONFIRM PURGE</Text>
+                  <Text style={styles.confirmBtnText}>PURGE</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -203,9 +204,9 @@ const styles = StyleSheet.create({
   imageHeader: { height: 380, backgroundColor: Colors.background, position: 'relative' },
   headerImage: { width: '100%', height: '100%' },
   placeholderImg: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  backBtn: { position: 'absolute', top: Platform.OS === 'ios' ? 60 : 45, left: 24, width: 46, height: 46, borderRadius: 16, backgroundColor: Colors.white, justifyContent: 'center', alignItems: 'center', shadowOpacity: 0.1, elevation: 10, shadowRadius: 10 },
-  shareBtn: { position: 'absolute', top: Platform.OS === 'ios' ? 60 : 45, right: 24, width: 46, height: 46, borderRadius: 16, backgroundColor: Colors.white, justifyContent: 'center', alignItems: 'center', shadowOpacity: 0.1, elevation: 10, shadowRadius: 10 },
-  content: { padding: 26, marginTop: -40, backgroundColor: Colors.white, borderTopLeftRadius: 45, borderTopRightRadius: 45, shadowColor: '#000', shadowOffset: { width: 0, height: -10 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 5 },
+  backBtn: { position: 'absolute', top: Platform.OS === 'ios' ? 60 : 45, left: 24, width: 46, height: 46, borderRadius: 16, backgroundColor: Colors.white, justifyContent: 'center', alignItems: 'center', elevation: 5 },
+  shareBtn: { position: 'absolute', top: Platform.OS === 'ios' ? 60 : 45, right: 24, width: 46, height: 46, borderRadius: 16, backgroundColor: Colors.white, justifyContent: 'center', alignItems: 'center', elevation: 5 },
+  content: { padding: 26, marginTop: -40, backgroundColor: Colors.white, borderTopLeftRadius: 45, borderTopRightRadius: 45, elevation: 5 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   categoryBadge: { backgroundColor: Colors.accent + '10', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start', marginBottom: 8 },
   category: { fontSize: 10, fontWeight: '900', color: Colors.accent, textTransform: 'uppercase', letterSpacing: 1 },
@@ -223,86 +224,19 @@ const styles = StyleSheet.create({
   statusText: { fontSize: 11, fontWeight: '900', letterSpacing: 0.5 },
   description: { fontSize: 15, color: Colors.textSecondary, lineHeight: 24, fontWeight: '500' },
   actions: { flexDirection: 'row', gap: 14, marginTop: 10 },
-  editBtn: { flex: 1, height: 64, backgroundColor: Colors.primary, borderRadius: 20, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', shadowColor: Colors.primary, shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 15, elevation: 8 },
+  editBtn: { flex: 1, height: 64, backgroundColor: Colors.primary, borderRadius: 20, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', elevation: 8 },
   editBtnText: { color: Colors.white, fontWeight: '900', marginLeft: 10, fontSize: 15, letterSpacing: 0.5 },
-  deleteBtn: { width: 64, height: 64, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.error, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.error + '05' },
-  
-  // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  modalContent: {
-    width: '100%',
-    backgroundColor: Colors.white,
-    borderRadius: 40,
-    padding: 30,
-    alignItems: 'center',
-  },
-  modalIconBox: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: Colors.error + '10',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: Colors.text,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  modalDesc: {
-    fontSize: 15,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 40,
-    paddingHorizontal: 10,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    gap: 14,
-  },
-  cancelBtn: {
-    flex: 1,
-    height: 60,
-    borderRadius: 20,
-    backgroundColor: Colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cancelBtnText: {
-    fontSize: 14,
-    fontWeight: '900',
-    color: Colors.textSecondary,
-    letterSpacing: 1,
-  },
-  confirmBtn: {
-    flex: 1,
-    height: 60,
-    borderRadius: 20,
-    backgroundColor: Colors.error,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: Colors.error,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  confirmBtnText: {
-    fontSize: 14,
-    fontWeight: '900',
-    color: Colors.white,
-    letterSpacing: 1,
-  },
+  deleteBtn: { width: 64, height: 64, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.error, justifyContent: 'center', alignItems: 'center' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', padding: 24 },
+  modalContent: { width: '100%', backgroundColor: Colors.white, borderRadius: 40, padding: 30, alignItems: 'center' },
+  modalIconBox: { width: 90, height: 90, borderRadius: 45, backgroundColor: Colors.error + '10', justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
+  modalTitle: { fontSize: 24, fontWeight: '900', color: Colors.text, marginBottom: 12, textAlign: 'center' },
+  modalDesc: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: 40, paddingHorizontal: 10 },
+  modalActions: { flexDirection: 'row', gap: 14 },
+  cancelBtn: { flex: 1, height: 60, borderRadius: 20, backgroundColor: Colors.background, justifyContent: 'center', alignItems: 'center' },
+  cancelBtnText: { fontSize: 14, fontWeight: '900', color: Colors.textSecondary, letterSpacing: 1 },
+  confirmBtn: { flex: 1, height: 60, borderRadius: 20, backgroundColor: Colors.error, justifyContent: 'center', alignItems: 'center', elevation: 8 },
+  confirmBtnText: { fontSize: 14, fontWeight: '900', color: Colors.white, letterSpacing: 1 },
 });
 
 export default ProductDetailScreen;
