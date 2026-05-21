@@ -168,16 +168,16 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
             <View style={styles.modalIconBox}>
               <MaterialIcons name="warning-amber" size={44} color={Colors.error} />
             </View>
-            <Text style={styles.modalTitle}>Purge Confirmation</Text>
+            <Text style={styles.modalTitle}>Delete Confirmation</Text>
             <Text style={styles.modalDesc}>
-              This will permanently terminate this machine entry from the cloud database.
+              Are you sure you want to delete this machine entry from the database?
             </Text>
             <View style={styles.modalActions}>
               <TouchableOpacity 
                 style={styles.cancelBtn} 
                 onPress={() => setDeleteModalVisible(false)}
               >
-                <Text style={styles.cancelBtnText}>ABORT</Text>
+                <Text style={styles.cancelBtnText}>CANCEL</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.confirmBtn} 
@@ -187,7 +187,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                 {deleteMutation.isPending ? (
                   <ActivityIndicator color={Colors.white} size="small" />
                 ) : (
-                  <Text style={styles.confirmBtnText}>PURGE</Text>
+                  <Text style={styles.confirmBtnText}>DELETE</Text>
                 )}
               </TouchableOpacity>
             </View>

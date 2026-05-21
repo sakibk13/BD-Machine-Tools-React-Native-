@@ -64,6 +64,16 @@ const ProductListScreen = ({ navigation }: any) => {
     const imageUrl = (item.images && item.images.length > 0) ? item.images[0].src : null;
     const categoryName = (item.categories && item.categories.length > 0) ? item.categories[0].name : 'Uncategorized';
 
+    // Calculate Discount Percentage
+    let discountPercent = 0;
+    if (item.on_sale && item.regular_price && item.price) {
+      const reg = parseFloat(item.regular_price);
+      const sale = parseFloat(item.price);
+      if (reg > sale) {
+        discountPercent = Math.round(((reg - sale) / reg) * 100);
+      }
+    }
+
     return (
       <TouchableOpacity 
         style={styles.card}
@@ -75,16 +85,16 @@ const ProductListScreen = ({ navigation }: any) => {
             <Image 
               source={{ uri: imageUrl }} 
               style={styles.productImage} 
-              resizeMode="cover"
+              resizeMode="contain"
             />
           ) : (
             <View style={styles.placeholderImg}>
               <MaterialIcons name="settings-input-component" size={40} color={Colors.border} />
             </View>
           )}
-          {item.on_sale && (
+          {item.on_sale && discountPercent > 0 && (
             <View style={styles.saleBadge}>
-              <Text style={styles.saleText}>OFFER</Text>
+              <Text style={styles.saleText}>{discountPercent}% OFF</Text>
             </View>
           )}
           {outOfStock && (
@@ -352,15 +362,20 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: CARD_WIDTH - 20,
-    borderRadius: (CARD_WIDTH - 20) / 2, // Perfect circle
+    height: (CARD_WIDTH - 20) * 0.8, // 5:4 or similar rectangular ratio
+    borderRadius: 20,
     overflow: 'hidden',
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.white,
     padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 2,
   },
   productImage: {
     width: '100%',
@@ -373,18 +388,24 @@ const styles = StyleSheet.create({
   },
   saleBadge: {
     position: 'absolute',
-    top: 5,
-    right: 5,
-    backgroundColor: Colors.accent,
-    paddingHorizontal: 8,
+    top: 6,
+    right: 6,
+    backgroundColor: Colors.error,
+    paddingHorizontal: 7,
     paddingVertical: 4,
     borderRadius: 8,
     zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
   },
   saleText: {
     color: Colors.white,
-    fontSize: 8,
+    fontSize: 10,
     fontWeight: '900',
+    letterSpacing: 0.5,
   },
   stockOverlay: {
     ...StyleSheet.absoluteFillObject,

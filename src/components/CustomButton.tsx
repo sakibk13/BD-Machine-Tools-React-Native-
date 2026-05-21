@@ -1,9 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../theme/colors';
-import { Typography } from '../theme/typography';
 
 interface CustomButtonProps {
   title: string;
@@ -14,75 +12,74 @@ interface CustomButtonProps {
 }
 
 const CustomButton = ({ title, onPress, loading, style, variant = 'primary' }: CustomButtonProps) => {
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
+  const isOutline = variant === 'outline';
+  
+  const getContent = () => (
+    <View style={styles.content}>
+      {loading ? (
+        <ActivityIndicator color={isOutline ? Colors.primary : Colors.white} />
+      ) : (
+        <Text style={[
+          styles.text, 
+          isOutline && { color: Colors.primary }
+        ]}>
+          {title}
+        </Text>
+      )}
+    </View>
+  );
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: opacity.value,
-    };
-  });
-
-  const onPressIn = () => {
-    scale.value = withSpring(0.96);
-    opacity.value = withTiming(0.9);
-  };
-
-  const onPressOut = () => {
-    scale.value = withSpring(1);
-    opacity.value = withTiming(1);
-  };
-
-  const getColors = () => {
-    switch (variant) {
-      case 'danger': return [Colors.error, '#D32F2F'];
-      case 'secondary': return [Colors.secondary, Colors.primary];
-      default: return Colors.gradient;
-    }
-  };
+  if (isOutline) {
+    return (
+      <TouchableOpacity 
+        onPress={onPress} 
+        disabled={loading}
+        style={[styles.button, styles.outline, style]}
+        activeOpacity={0.7}
+      >
+        {getContent()}
+      </TouchableOpacity>
+    );
+  }
 
   return (
-    <Animated.View style={[styles.container, animatedStyle, style]}>
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={onPress}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        style={styles.touchable}
-        disabled={loading}
+    <TouchableOpacity 
+      onPress={onPress} 
+      disabled={loading}
+      style={[styles.button, styles.shadow, style]}
+      activeOpacity={0.8}
+    >
+      <LinearGradient
+        colors={variant === 'danger' ? [Colors.error, '#D32F2F'] : Colors.gradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradient}
       >
-        <LinearGradient
-          colors={getColors()}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.gradient}
-        >
-          {loading ? (
-            <ActivityIndicator color={Colors.white} />
-          ) : (
-            <Text style={[styles.text]}>{title}</Text>
-          )}
-        </LinearGradient>
-      </TouchableOpacity>
-    </Animated.View>
+        {getContent()}
+      </LinearGradient>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  button: {
     width: '100%',
-    height: 60,
-    borderRadius: 20,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
-    elevation: 8,
+    height: 58,
+    borderRadius: 18,
     overflow: 'hidden',
   },
-  touchable: {
-    flex: 1,
+  shadow: {
+    ...Platform.select({
+      ios: {
+        shadowColor: Colors.primary,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 15,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   gradient: {
     flex: 1,
@@ -90,11 +87,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
   },
+  outline: {
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   text: {
     color: Colors.white,
     fontSize: 16,
     fontWeight: '900',
-    letterSpacing: 1.5,
+    letterSpacing: 2,
     textTransform: 'uppercase',
   },
 });

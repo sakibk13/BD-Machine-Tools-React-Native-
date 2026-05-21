@@ -40,7 +40,7 @@ const AddProductScreen = ({ navigation }: any) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [1, 1], // Perfect square for circular frames
+      aspect: [4, 3], 
       quality: 0.8,
     });
 
@@ -113,7 +113,7 @@ const AddProductScreen = ({ navigation }: any) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       Toast.show({
         type: 'success',
-        text1: 'Listing Published',
+        text1: 'Product Saved',
         text2: 'The machine is now live in inventory.',
         position: 'bottom'
       });
@@ -124,7 +124,7 @@ const AddProductScreen = ({ navigation }: any) => {
       Toast.show({
         type: 'error',
         text1: 'Submission Failed',
-        text2: 'Please verify all technical specifications.',
+        text2: 'Please verify all specifications.',
         position: 'bottom'
       });
     }
@@ -134,8 +134,8 @@ const AddProductScreen = ({ navigation }: any) => {
     if (!name || !regularPrice || !stock) {
       Toast.show({
         type: 'info',
-        text1: 'Data Required',
-        text2: 'Model Name, Price, and Stock are mandatory.',
+        text1: 'Required Info',
+        text2: 'Name, Price, and Stock are mandatory.',
         position: 'bottom'
       });
       return;
@@ -158,14 +158,14 @@ const AddProductScreen = ({ navigation }: any) => {
         {/* Image Picker */}
         <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
           {image ? (
-            <Image source={{ uri: image }} style={styles.previewImage} />
+            <Image source={{ uri: image }} style={styles.previewImage} resizeMode="contain" />
           ) : (
             <View style={styles.imagePlaceholder}>
               <View style={styles.pickerIconCircle}>
                 <MaterialIcons name="add-photo-alternate" size={32} color={Colors.accent} />
               </View>
-              <Text style={styles.imageText}>Upload Asset Photo</Text>
-              <Text style={styles.imageSubtext}>1:1 Aspect Ratio Recommended</Text>
+              <Text style={styles.imageText}>Upload Product Photo</Text>
+              <Text style={styles.imageSubtext}>4:3 Aspect Ratio Recommended</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -263,7 +263,7 @@ const AddProductScreen = ({ navigation }: any) => {
           </View>
 
           <CustomButton 
-            title={uploading ? "SYNCING..." : "PUBLISH TO CLOUD"} 
+            title={uploading ? "SAVING..." : "ADD PRODUCT"} 
             onPress={handleSubmit} 
             loading={uploading}
             style={styles.submitBtn}

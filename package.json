@@ -7,7 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "clean": "powershell -Command \"if (Test-Path .expo) { Remove-Item -Recurse -Force .expo }; if (Test-Path dist) { Remove-Item -Recurse -Force dist }; npx expo start -c\""
+    "clean": "powershell -NoProfile -Command \"if (Test-Path .expo) { Remove-Item -Recurse -Force .expo }; if (Test-Path dist) { Remove-Item -Recurse -Force dist }; if (Test-Path android) { Remove-Item -Recurse -Force android }; if (Test-Path ios) { Remove-Item -Recurse -Force ios }\""
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

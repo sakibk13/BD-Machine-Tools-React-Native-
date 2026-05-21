@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Platform, Linking, Alert, ActivityIndicator } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Platform, Linking, Alert, ActivityIndicator, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -64,18 +64,16 @@ const DashboardScreen = ({ navigation }: any) => {
     },
   });
 
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { 
-        text: 'Logout', 
-        style: 'destructive', 
-        onPress: async () => {
-          await AsyncStorage.removeItem('isLoggedIn');
-          navigation.replace('Login');
-        } 
-      },
-    ]);
+    setLogoutModalVisible(true);
+  };
+
+  const confirmLogout = async () => {
+    setLogoutModalVisible(false);
+    await AsyncStorage.removeItem('isLoggedIn');
+    navigation.replace('Login');
   };
 
   const openWebsite = () => {
@@ -186,6 +184,36 @@ const DashboardScreen = ({ navigation }: any) => {
         </View>
         <View style={{ height: 120 }} />
       </ScrollView>
+      <Modal
+        visible={logoutModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setLogoutModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={[styles.modalIconBox, { backgroundColor: Colors.warning + '15' }]}>
+              <MaterialIcons name="logout" size={44} color={Colors.warning} />
+            </View>
+            <Text style={styles.modalTitle}>Confirm Logout</Text>
+            <Text style={styles.modalDesc}>Are you sure you want to log out from the application?</Text>
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.cancelBtn]}
+                onPress={() => setLogoutModalVisible(false)}
+              >
+                <Text style={[styles.modalBtnText, { color: Colors.textSecondary }]}>CANCEL</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.confirmBtn]}
+                onPress={confirmLogout}
+              >
+                <Text style={styles.modalBtnText}>LOGOUT</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -402,6 +430,66 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: '600',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'center',
+    padding: 25,
+  },
+  modalContent: {
+      backgroundColor: Colors.surface,
+      borderRadius: 30,
+      padding: 35,
+      alignItems: 'center',
+  },
+  modalIconBox: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 20,
+  },
+  modalTitle: {
+      fontSize: 22,
+      fontWeight: '900',
+      color: Colors.text,
+      marginBottom: 10,
+      textAlign: 'center',
+  },
+  modalDesc: {
+      fontSize: 15,
+      color: Colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 22,
+      marginBottom: 30,
+  },
+  modalActions: {
+      flexDirection: 'row',
+      gap: 15,
+      width: '100%',
+  },
+  modalBtn: {
+      flex: 1,
+      height: 60,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  cancelBtn: {
+      backgroundColor: Colors.background,
+      borderWidth: 1,
+      borderColor: Colors.border,
+  },
+  confirmBtn: {
+      backgroundColor: Colors.primary,
+  },
+  modalBtnText: {
+      fontSize: 16,
+      fontWeight: '900',
+      color: Colors.white,
+      letterSpacing: 1,
+  }
 });
 
 export default DashboardScreen;
