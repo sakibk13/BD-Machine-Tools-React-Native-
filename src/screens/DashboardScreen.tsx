@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Platform, Linking, Alert, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeIn, FadeInUp, FadeInRight } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery } from '@tanstack/react-query';
@@ -109,10 +108,10 @@ const DashboardScreen = ({ navigation }: any) => {
         {/* Modern Header */}
         <LinearGradient colors={Colors.gradient} style={styles.header}>
           <View style={styles.headerTop}>
-            <Animated.View entering={FadeIn.duration(800)}>
+            <View>
               <Text style={styles.greetingText}>Terminal Active</Text>
               <Text style={styles.headerTitle}>Dashboard</Text>
-            </Animated.View>
+            </View>
             <View style={styles.headerActions}>
               <TouchableOpacity style={styles.profileBtn} onPress={openWebsite}>
                 <MaterialIcons name="language" size={22} color={Colors.white} />
@@ -123,7 +122,7 @@ const DashboardScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          <Animated.View entering={FadeInUp.delay(300).duration(800)} style={styles.heroCard}>
+          <View style={styles.heroCard}>
             <View style={styles.heroContent}>
               <Text style={styles.heroLabel}>Weekly Performance</Text>
               <Text style={styles.heroValue}>{revenueValue}</Text>
@@ -135,7 +134,7 @@ const DashboardScreen = ({ navigation }: any) => {
             <View style={styles.heroGraphic}>
               <MaterialIcons name="insights" size={70} color="rgba(255,255,255,0.15)" />
             </View>
-          </Animated.View>
+          </View>
         </LinearGradient>
 
         <View style={styles.content}>
@@ -143,9 +142,8 @@ const DashboardScreen = ({ navigation }: any) => {
           {/* Stats Grid */}
           <View style={styles.statsGrid}>
             {stats.map((stat, index) => (
-              <Animated.View 
+              <View 
                 key={index} 
-                entering={FadeInUp.delay(300 + index * 100).springify().damping(12)} 
                 style={styles.statCard}
               >
                 <View style={[styles.statIconBox, { backgroundColor: stat.color + '10' }]}>
@@ -156,7 +154,7 @@ const DashboardScreen = ({ navigation }: any) => {
                 <View style={styles.trendRow}>
                   <Text style={[styles.statTrend, { color: stat.color }]}>{stat.trend}</Text>
                 </View>
-              </Animated.View>
+              </View>
             ))}
           </View>
 
@@ -167,26 +165,22 @@ const DashboardScreen = ({ navigation }: any) => {
 
           <View style={styles.actionsList}>
             {actions.map((action, index) => (
-              <Animated.View 
-                key={index} 
-                entering={FadeInRight.delay(600 + index * 100)}
+              <TouchableOpacity 
+                key={index}
+                style={styles.actionCard}
+                onPress={() => navigation.navigate(action.screen)}
               >
-                <TouchableOpacity 
-                  style={styles.actionCard}
-                  onPress={() => navigation.navigate(action.screen)}
-                >
-                  <View style={styles.actionMain}>
-                    <View style={styles.actionIconWrapper}>
-                      <MaterialIcons name={action.icon as any} size={24} color={Colors.accent} />
-                    </View>
-                    <View style={styles.actionTextContent}>
-                      <Text style={styles.actionTitle}>{action.title}</Text>
-                      <Text style={styles.actionDesc}>{action.desc}</Text>
-                    </View>
+                <View style={styles.actionMain}>
+                  <View style={styles.actionIconWrapper}>
+                    <MaterialIcons name={action.icon as any} size={24} color={Colors.accent} />
                   </View>
-                  <MaterialIcons name="arrow-forward-ios" size={16} color={Colors.border} />
-                </TouchableOpacity>
-              </Animated.View>
+                  <View style={styles.actionTextContent}>
+                    <Text style={styles.actionTitle}>{action.title}</Text>
+                    <Text style={styles.actionDesc}>{action.desc}</Text>
+                  </View>
+                </View>
+                <MaterialIcons name="arrow-forward-ios" size={16} color={Colors.border} />
+              </TouchableOpacity>
             ))}
           </View>
         </View>

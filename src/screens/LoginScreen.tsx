@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Dimensions, Alert, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Toast from 'react-native-toast-message';
@@ -11,7 +10,7 @@ import CustomButton from '../components/CustomButton';
 import CustomInput from '../components/CustomInput';
 import { encode } from 'base-64';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const SITE_URL = process.env.EXPO_PUBLIC_SITE_URL || 'https://bdmachinetools.com';
 
@@ -84,14 +83,14 @@ const LoginScreen = ({ navigation }: any) => {
           });
           navigation.replace('Main');
         } else {
-          showError('Access Denied', `Your account (${data.name}) does not have Administrator or Shop Manager permissions.`);
+          showError('Access Denied', `Your account does not have Admin permissions.`);
         }
       } else {
-        const errorMsg = data.message || 'The username or password you entered is incorrect.';
-        showError('Login Failed', errorMsg + '\n\nHint: Use your WordPress Application Password for a secure connection.');
+        const errorMsg = data.message || 'Login failed.';
+        showError('Login Failed', errorMsg);
       }
     } catch (error: any) {
-      showError('Connection Error', 'Could not reach the server. Please check your internet connection and SITE_URL settings.');
+      showError('Connection Error', 'Could not reach server.');
     } finally {
       setLoading(false);
     }
@@ -99,12 +98,7 @@ const LoginScreen = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      {/* Dynamic Background */}
       <LinearGradient colors={Colors.gradient} style={StyleSheet.absoluteFill} />
-      <View style={styles.meshContainer}>
-        <View style={[styles.meshCircle, { top: -100, left: -50, backgroundColor: Colors.accent }]} />
-        <View style={[styles.meshCircle, { bottom: -150, right: -100, backgroundColor: Colors.secondary, width: 400, height: 400 }]} />
-      </View>
       
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -115,7 +109,7 @@ const LoginScreen = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Animated.View entering={FadeInUp.duration(1000).springify()} style={styles.header}>
+          <View style={styles.header}>
             <View style={styles.logoWrapper}>
               <View style={styles.logoInner}>
                 <Image 
@@ -126,77 +120,50 @@ const LoginScreen = ({ navigation }: any) => {
               </View>
             </View>
             <Text style={styles.brandName}>BD Machine Tools</Text>
-            <Text style={styles.brandSlogan}>Advanced Inventory Terminal</Text>
-          </Animated.View>
+            <Text style={styles.brandSlogan}>Admin Hub</Text>
+          </View>
 
-          <Animated.View 
-            entering={FadeInDown.delay(300).duration(1000).springify()}
-            style={styles.glassCard}
-          >
+          <View style={styles.glassCard}>
             <Text style={styles.loginTitle}>Authorized Access</Text>
-            <Text style={styles.loginSubtitle}>Provide your workstation credentials</Text>
-
+            
             <View style={styles.form}>
               <CustomInput
-                label="Identifier (Admin ID/Email)"
-                placeholder="e.g. admin_shakib"
+                label="Admin ID"
+                placeholder="admin"
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
-                icon="verified-user"
+                icon="person"
               />
               
               <View style={styles.passwordWrapper}>
                 <CustomInput
-                  label="Secure Token / Password"
+                  label="Password"
                   placeholder="••••••••"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
-                  icon="vpn-key"
+                  icon="lock"
                 />
                 <TouchableOpacity 
                   style={styles.eyeBtn}
                   onPress={() => setShowPassword(!showPassword)}
                 >
-                  <MaterialIcons 
-                    name={showPassword ? "visibility-off" : "visibility"} 
-                    size={20} 
-                    color={Colors.textSecondary} 
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.forgotRow}>
-                <TouchableOpacity style={styles.rememberMe} onPress={() => setRememberMe(!rememberMe)}>
-                  <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
-                    {rememberMe && <MaterialIcons name="check" size={14} color={Colors.white} />}
-                  </View>
-                  <Text style={styles.rememberText}>Save for 30 days</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Text style={styles.forgotText}>Reset Token</Text>
+                  <MaterialIcons name={showPassword ? "visibility-off" : "visibility"} size={20} color={Colors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
               <CustomButton
-                title="INITIATE LOGIN"
+                title="LOGIN"
                 onPress={handleLogin}
                 loading={loading}
                 style={styles.loginBtn}
               />
             </View>
-          </Animated.View>
-
-          <Animated.View entering={FadeInUp.delay(600).duration(800)} style={styles.footer}>
-            <View style={styles.footerLine} />
-            <Text style={styles.footerNote}>SECURE NODE: {SITE_URL.replace('https://', '')}</Text>
-            <Text style={styles.versionText}>System Version 2.0.4-Gold</Text>
-          </Animated.View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* Professional Error Modal */}
       <Modal
         visible={errorModalVisible}
         transparent
@@ -205,16 +172,11 @@ const LoginScreen = ({ navigation }: any) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <View style={styles.modalIconBox}>
-              <MaterialIcons name="security" size={40} color={Colors.error} />
-            </View>
+            <MaterialIcons name="report-problem" size={40} color={Colors.error} />
             <Text style={styles.modalTitle}>{errorTitle}</Text>
             <Text style={styles.modalDesc}>{errorDesc}</Text>
-            <TouchableOpacity 
-              style={styles.modalCloseBtn} 
-              onPress={() => setErrorModalVisible(false)}
-            >
-              <Text style={styles.modalCloseBtnText}>ACKNOWLEDGE</Text>
+            <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setErrorModalVisible(false)}>
+              <Text style={styles.modalCloseBtnText}>OK</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -224,239 +186,26 @@ const LoginScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.primary,
-  },
-  meshContainer: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: 'hidden',
-    opacity: 0.4,
-  },
-  meshCircle: {
-    position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    opacity: 0.5,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    justifyContent: 'center',
-    paddingTop: 40,
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoWrapper: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    padding: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  logoInner: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 68,
-    backgroundColor: Colors.white,
-    padding: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  logo: {
-    width: '100%',
-    height: '100%',
-  },
-  brandName: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: Colors.white,
-    letterSpacing: 1,
-  },
-  brandSlogan: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.accentLight,
-    textTransform: 'uppercase',
-    letterSpacing: 3,
-    marginTop: 4,
-  },
-  glassCard: {
-    backgroundColor: Colors.glass,
-    borderRadius: 35,
-    padding: 28,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 25 },
-    shadowOpacity: 0.3,
-    shadowRadius: 35,
-    elevation: 25,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  loginTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: Colors.text,
-    textAlign: 'center',
-  },
-  loginSubtitle: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 4,
-    fontWeight: '600',
-    marginBottom: 32,
-  },
-  form: {
-    gap: 4,
-  },
-  passwordWrapper: {
-    position: 'relative',
-  },
-  eyeBtn: {
-    position: 'absolute',
-    right: 16,
-    bottom: 22,
-    padding: 10,
-    zIndex: 10,
-  },
-  forgotRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 28,
-    marginTop: 8,
-  },
-  rememberMe: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkbox: {
-    width: 18,
-    height: 18,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: Colors.border,
-    marginRight: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxActive: {
-    backgroundColor: Colors.accent,
-    borderColor: Colors.accent,
-  },
-  rememberText: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    fontWeight: '700',
-  },
-  forgotText: {
-    fontSize: 12,
-    color: Colors.accent,
-    fontWeight: '800',
-  },
-  loginBtn: {
-    height: 60,
-    borderRadius: 18,
-    shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    elevation: 8,
-  },
-  footer: {
-    marginTop: 40,
-    alignItems: 'center',
-  },
-  footerLine: {
-    width: 40,
-    height: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 2,
-    marginBottom: 16,
-  },
-  footerNote: {
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.6)',
-    fontWeight: '800',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  versionText: {
-    fontSize: 9,
-    color: 'rgba(255,255,255,0.4)',
-    fontWeight: '600',
-    marginTop: 4,
-  },
-  // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  modalContent: {
-    width: '100%',
-    backgroundColor: Colors.white,
-    borderRadius: 35,
-    padding: 30,
-    alignItems: 'center',
-  },
-  modalIconBox: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: Colors.error + '10',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: Colors.text,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  modalDesc: {
-    fontSize: 15,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 35,
-  },
-  modalCloseBtn: {
-    width: '100%',
-    height: 60,
-    borderRadius: 20,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  modalCloseBtnText: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: Colors.white,
-    letterSpacing: 2,
-  },
+  container: { flex: 1, backgroundColor: Colors.primary },
+  scrollContent: { flexGrow: 1, paddingHorizontal: 30, justifyContent: 'center', paddingVertical: 50 },
+  header: { alignItems: 'center', marginBottom: 30 },
+  logoWrapper: { width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', marginBottom: 15 },
+  logoInner: { width: 140, height: 140, borderRadius: 70, backgroundColor: Colors.white, padding: 35, justifyContent: 'center', alignItems: 'center' },
+  logo: { width: '100%', height: '100%' },
+  brandName: { fontSize: 26, fontWeight: '900', color: Colors.white, letterSpacing: 1 },
+  brandSlogan: { fontSize: 10, fontWeight: '700', color: Colors.accent, textTransform: 'uppercase', letterSpacing: 2, marginTop: 4 },
+  glassCard: { backgroundColor: Colors.white, borderRadius: 30, padding: 25, elevation: 10 },
+  loginTitle: { fontSize: 20, fontWeight: '900', color: Colors.text, textAlign: 'center', marginBottom: 25 },
+  form: { gap: 10 },
+  passwordWrapper: { position: 'relative' },
+  eyeBtn: { position: 'absolute', right: 15, bottom: 20, padding: 10, zIndex: 10 },
+  loginBtn: { height: 56, borderRadius: 15, marginTop: 10 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 25 },
+  modalContent: { width: '100%', backgroundColor: Colors.white, borderRadius: 25, padding: 25, alignItems: 'center' },
+  modalTitle: { fontSize: 20, fontWeight: '900', color: Colors.text, marginVertical: 10 },
+  modalDesc: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginBottom: 20 },
+  modalCloseBtn: { width: '100%', height: 50, borderRadius: 12, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center' },
+  modalCloseBtnText: { fontSize: 15, fontWeight: '800', color: Colors.white },
 });
 
 export default LoginScreen;
