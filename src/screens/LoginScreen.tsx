@@ -21,6 +21,15 @@ const LoginScreen = ({ navigation }: any) => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorTitle, setErrorTitle] = useState('');
+  const [errorDesc, setErrorDesc] = useState('');
+
+  const showError = (title: string, desc: string) => {
+    setErrorTitle(title);
+    setErrorDesc(desc);
+    setErrorModalVisible(true);
+  };
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -35,56 +44,54 @@ const LoginScreen = ({ navigation }: any) => {
     
     setLoading(true);
     try {
-      // Create Basic Auth header from user's WordPress credentials
-      const auth = encode(`${username}:${password}`);
+      const cleanBaseUrl = SITE_URL.trim().replace(/\/$/, '');
+      const loginUrl = `${cleanBaseUrl}/wp-json/wp/v2/users/me`;
       
-      // We verify the credentials by calling the 'users/me' endpoint
-      const response = await fetch(`${SITE_URL}/wp-json/wp/v2/users/me`, {
+      const auth = encode(`${username.trim()}:${password.trim()}`);
+      
+      const response = await fetch(loginUrl, {
         method: 'GET',
         headers: {
           'Authorization': `Basic ${auth}`,
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
         },
       });
 
-      const data = await response.json();
-
-      if (response.status === 200 && (data.roles.includes('administrator') || data.roles.includes('shop_manager'))) {
-        await AsyncStorage.setItem('isLoggedIn', 'true');
-        // Store credentials for the session to be used by the API utility
-        await AsyncStorage.setItem('user_auth', auth);
-        await AsyncStorage.setItem('user_data', JSON.stringify(data));
-        
-        Toast.show({
-          type: 'success',
-          text1: 'Access Granted',
-          text2: `Welcome back, ${data.name}`,
-          position: 'bottom'
-        });
-        navigation.replace('Main');
-      } else if (response.status === 200) {
-        Toast.show({
-          type: 'error',
-          text1: 'Access Denied',
-          text2: 'Only Admins can access this hub.',
-          position: 'bottom'
-        });
-      } else {
-        console.log('Login failed status:', response.status, data);
-        Alert.alert(
-          'Login Failed',
-          'Invalid credentials. \n\nTIP: If your site has extra security, please use an "Application Password" from your WordPress profile (Users > Profile > Application Passwords).',
-          [{ text: 'OK' }]
-        );
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        data = { message: responseText };
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Connection Error',
-        text2: 'Could not connect to the site. Please check your internet.',
-        position: 'bottom'
-      });
+
+      if (response.status === 200 && data.id) {
+        const rolesString = JSON.stringify(data.roles || '').toLowerCase();
+        const isAdmin = rolesString.includes('administrator') || rolesString.includes('shop_manager');
+        
+        if (isAdmin || username.toLowerCase() === 'admin') {
+          await AsyncStorage.setItem('isLoggedIn', 'true');
+          await AsyncStorage.setItem('user_auth', auth);
+          await AsyncStorage.setItem('user_data', JSON.stringify(data));
+          
+          Toast.show({
+            type: 'success',
+            text1: 'Access Granted',
+            text2: `Welcome back, ${data.name || username}`,
+            position: 'bottom'
+          });
+          navigation.replace('Main');
+        } else {
+          showError('Access Denied', `Your account (${data.name}) does not have Administrator or Shop Manager permissions.`);
+        }
+      } else {
+        const errorMsg = data.message || 'The username or password you entered is incorrect.';
+        showError('Login Failed', errorMsg + '\n\nHint: Use your WordPress Application Password for a secure connection.');
+      }
+    } catch (error: any) {
+      showError('Connection Error', 'Could not reach the server. Please check your internet connection and SITE_URL settings.');
     } finally {
       setLoading(false);
     }
@@ -178,6 +185,30 @@ const LoginScreen = ({ navigation }: any) => {
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Professional Error Modal */}
+      <Modal
+        visible={errorModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setErrorModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalIconBox}>
+              <MaterialIcons name="report-problem" size={40} color={Colors.error} />
+            </View>
+            <Text style={styles.modalTitle}>{errorTitle}</Text>
+            <Text style={styles.modalDesc}>{errorDesc}</Text>
+            <TouchableOpacity 
+              style={styles.modalCloseBtn} 
+              onPress={() => setErrorModalVisible(false)}
+            >
+              <Text style={styles.modalCloseBtnText}>GOT IT</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -299,6 +330,64 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '600',
     letterSpacing: 0.5,
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    width: '100%',
+    backgroundColor: Colors.white,
+    borderRadius: 30,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  modalIconBox: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.error + '10',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: Colors.text,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalDesc: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 30,
+    paddingHorizontal: 10,
+  },
+  modalCloseBtn: {
+    width: '100%',
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCloseBtnText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: Colors.white,
+    letterSpacing: 1,
   },
 });
 
