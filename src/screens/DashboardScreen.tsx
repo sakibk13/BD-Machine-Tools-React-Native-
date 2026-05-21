@@ -92,7 +92,7 @@ const DashboardScreen = ({ navigation }: any) => {
     { title: 'Total Revenue', value: revenueValue, icon: 'payments', color: Colors.success, trend: 'Last 7 days' },
     { title: 'New Orders', value: ordersCount || '0', icon: 'shopping-basket', color: Colors.info, trend: 'Total' },
     { title: 'Active Items', value: productsCount || '0', icon: 'precision-manufacturing', color: Colors.warning, trend: 'Inventory' },
-    { title: 'Total Clients', value: customersCount || '0', icon: 'badge', color: Colors.primary, trend: 'Database' },
+    { title: 'Total Clients', value: customersCount || '0', icon: 'badge', color: Colors.accent, trend: 'Database' },
   ];
 
   const actions = [
@@ -110,30 +110,30 @@ const DashboardScreen = ({ navigation }: any) => {
         <LinearGradient colors={Colors.gradient} style={styles.header}>
           <View style={styles.headerTop}>
             <Animated.View entering={FadeIn.duration(800)}>
-              <Text style={styles.greetingText}>System Online</Text>
-              <Text style={styles.headerTitle}>Overview</Text>
+              <Text style={styles.greetingText}>Terminal Active</Text>
+              <Text style={styles.headerTitle}>Dashboard</Text>
             </Animated.View>
             <View style={styles.headerActions}>
               <TouchableOpacity style={styles.profileBtn} onPress={openWebsite}>
-                <MaterialIcons name="public" size={24} color={Colors.white} />
+                <MaterialIcons name="language" size={22} color={Colors.white} />
               </TouchableOpacity>
               <TouchableOpacity style={[styles.profileBtn, { marginLeft: 12 }]} onPress={handleLogout}>
-                <MaterialIcons name="power-settings-new" size={24} color={Colors.white} />
+                <MaterialIcons name="logout" size={22} color={Colors.white} />
               </TouchableOpacity>
             </View>
           </View>
 
           <Animated.View entering={FadeInUp.delay(300).duration(800)} style={styles.heroCard}>
             <View style={styles.heroContent}>
-              <Text style={styles.heroLabel}>Weekly Total Sales</Text>
+              <Text style={styles.heroLabel}>Weekly Performance</Text>
               <Text style={styles.heroValue}>{revenueValue}</Text>
               <View style={styles.heroBadge}>
-                <MaterialIcons name="trending-up" size={16} color={Colors.success} />
-                <Text style={styles.heroBadgeText}>LIVE UPDATING</Text>
+                <View style={styles.livePulse} />
+                <Text style={styles.heroBadgeText}>LIVE METRICS</Text>
               </View>
             </View>
             <View style={styles.heroGraphic}>
-              <MaterialIcons name="bar-chart" size={80} color="rgba(255,255,255,0.1)" />
+              <MaterialIcons name="insights" size={70} color="rgba(255,255,255,0.15)" />
             </View>
           </Animated.View>
         </LinearGradient>
@@ -148,13 +148,12 @@ const DashboardScreen = ({ navigation }: any) => {
                 entering={FadeInUp.delay(300 + index * 100).springify().damping(12)} 
                 style={styles.statCard}
               >
-                <View style={[styles.statIconBox, { backgroundColor: stat.color + '15' }]}>
+                <View style={[styles.statIconBox, { backgroundColor: stat.color + '10' }]}>
                   <MaterialIcons name={stat.icon} size={22} color={stat.color} />
                 </View>
                 <Text style={styles.statValue}>{stat.value}</Text>
                 <Text style={styles.statTitle}>{stat.title}</Text>
                 <View style={styles.trendRow}>
-                  <MaterialIcons name="trending-up" size={12} color={stat.color} />
                   <Text style={[styles.statTrend, { color: stat.color }]}>{stat.trend}</Text>
                 </View>
               </Animated.View>
@@ -163,7 +162,7 @@ const DashboardScreen = ({ navigation }: any) => {
 
           {/* Professional Action Cards */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Management Hub</Text>
+            <Text style={styles.sectionTitle}>Operations Center</Text>
           </View>
 
           <View style={styles.actionsList}>
@@ -178,14 +177,14 @@ const DashboardScreen = ({ navigation }: any) => {
                 >
                   <View style={styles.actionMain}>
                     <View style={styles.actionIconWrapper}>
-                      <MaterialIcons name={action.icon as any} size={26} color={Colors.primary} />
+                      <MaterialIcons name={action.icon as any} size={24} color={Colors.accent} />
                     </View>
                     <View style={styles.actionTextContent}>
                       <Text style={styles.actionTitle}>{action.title}</Text>
                       <Text style={styles.actionDesc}>{action.desc}</Text>
                     </View>
                   </View>
-                  <MaterialIcons name="chevron-right" size={24} color={Colors.border} />
+                  <MaterialIcons name="arrow-forward-ios" size={16} color={Colors.border} />
                 </TouchableOpacity>
               </Animated.View>
             ))}
@@ -208,9 +207,9 @@ const styles = StyleSheet.create({
   header: {
     padding: 24,
     paddingTop: Platform.OS === 'ios' ? 60 : 50,
-    paddingBottom: 80,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
+    paddingBottom: 70,
+    borderBottomLeftRadius: 45,
+    borderBottomRightRadius: 45,
   },
   headerTop: {
     flexDirection: 'row',
@@ -219,75 +218,86 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   greetingText: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 14,
-    fontWeight: '600',
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 12,
+    fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 2,
   },
   headerTitle: {
     color: Colors.white,
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '900',
+    letterSpacing: -1,
   },
   headerActions: {
     flexDirection: 'row',
   },
   profileBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.12)',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   heroCard: {
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 32,
     padding: 24,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: 'rgba(255,255,255,0.15)',
   },
   heroContent: {
     flex: 1,
   },
   heroLabel: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 14,
-    fontWeight: '600',
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   heroValue: {
     color: Colors.white,
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '900',
-    marginVertical: 4,
+    marginVertical: 6,
+    letterSpacing: -0.5,
   },
   heroBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 200, 83, 0.15)',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
     alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
     marginTop: 4,
   },
+  livePulse: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.accent,
+    marginRight: 8,
+  },
   heroBadgeText: {
-    color: Colors.success,
+    color: Colors.accentLight,
     fontSize: 10,
-    fontWeight: '800',
-    marginLeft: 4,
-    letterSpacing: 0.5,
+    fontWeight: '900',
+    letterSpacing: 1,
   },
   heroGraphic: {
     marginLeft: 10,
   },
   content: {
     paddingHorizontal: 20,
-    marginTop: -50,
+    marginTop: -40,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -296,74 +306,80 @@ const styles = StyleSheet.create({
   },
   statCard: {
     backgroundColor: Colors.surface,
-    width: (width - 56) / 2,
+    width: (width - 55) / 2,
     padding: 20,
     borderRadius: 32,
-    marginBottom: 16,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.08,
-    shadowRadius: 24,
-    elevation: 10,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
+    elevation: 8,
     borderWidth: 1,
-    borderColor: 'rgba(7, 51, 52, 0.03)',
+    borderColor: 'rgba(0,0,0,0.02)',
   },
   trendRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 8,
-    gap: 4,
   },
   statIconBox: {
     width: 44,
     height: 44,
-    borderRadius: 14,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   statValue: {
     fontSize: 22,
     fontWeight: '900',
     color: Colors.text,
+    letterSpacing: -0.5,
   },
   statTitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: Colors.textSecondary,
-    fontWeight: '600',
+    fontWeight: '700',
     marginTop: 2,
   },
   statTrend: {
-    fontSize: 11,
-    fontWeight: '800',
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 24,
+    marginTop: 25,
     marginBottom: 16,
+    paddingLeft: 4,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '900',
     color: Colors.text,
+    letterSpacing: -0.5,
   },
   actionsList: {
     gap: 12,
   },
   actionCard: {
     backgroundColor: Colors.surface,
-    padding: 16,
-    borderRadius: 24,
+    padding: 18,
+    borderRadius: 28,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.03,
     shadowRadius: 10,
-    elevation: 2,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.01)',
   },
   actionMain: {
     flexDirection: 'row',
@@ -372,7 +388,7 @@ const styles = StyleSheet.create({
   actionIconWrapper: {
     width: 52,
     height: 52,
-    borderRadius: 16,
+    borderRadius: 18,
     backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
@@ -383,14 +399,14 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '900',
     color: Colors.text,
   },
   actionDesc: {
     fontSize: 12,
     color: Colors.textSecondary,
     marginTop: 2,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 });
 

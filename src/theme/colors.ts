@@ -1,30 +1,37 @@
 export const Colors = {
-  // Brand Colors
-  primary: '#073334',      // Deep Teal
-  secondary: '#0A4D4F',    // Medium Teal
-  accent: '#13696B',       // Bright Teal
+  // Brand Colors - Deep & Sophisticated
+  primary: '#052A2B',      // Darker Teal for depth
+  secondary: '#0B4F51',    // Rich Teal
+  accent: '#10B981',       // Vibrant Emerald (Emerald 500)
+  accentLight: '#34D399',  // Light Emerald
   
-  // Neutral Colors
-  background: '#F0F4F4',   // Soft Grey-Teal background
-  surface: '#FFFFFF',      // Card surfaces
-  border: '#E2E8E8',       // Subtle borders
+  // UI Colors
+  background: '#F0F5F5',   // Very light teal-grey
+  surface: '#FFFFFF',      // Pure white for contrast
+  card: '#F8FAFA',         // Off-white for subtle depth
+  border: '#E2E8F0',       // Light Slate border
   
-  // Status Colors
-  success: '#00C853',      // Vibrant Green
-  error: '#FF3D00',        // Vibrant Red
-  warning: '#FFAB00',      // Vibrant Amber
-  info: '#2979FF',         // Vibrant Blue
+  // Status Colors - Modern & Vibrant
+  success: '#10B981',      // Emerald 500
+  error: '#EF4444',        // Red 500
+  warning: '#F59E0B',      // Amber 500
+  info: '#3B82F6',         // Blue 500
   
   // Text Colors
-  text: '#052223',         // Almost black teal
-  textSecondary: '#607D8B', // Blue-Grey text
+  text: '#0F172A',         // Slate 900 for modern feel
+  textSecondary: '#64748B', // Slate 500 for captions
+  textMuted: '#94A3B8',    // Slate 400
   white: '#FFFFFF',
   
-  // Gradients
-  gradient: ['#073334', '#0D5B5D'],
-  glassGradient: ['rgba(255, 255, 255, 0.9)', 'rgba(255, 255, 255, 0.4)'],
+  // Special Gradients
+  gradient: ['#052A2B', '#0B4F51', '#13696B'],
+  accentGradient: ['#10B981', '#059669'],
+  surfaceGradient: ['#FFFFFF', '#F8FAFA'],
   
-  // Interactive
-  overlay: 'rgba(7, 51, 52, 0.05)',
-  inputBackground: '#F8FBFB',
+  // Glassmorphism effect
+  glass: 'rgba(255, 255, 255, 0.85)',
+  glassDark: 'rgba(15, 23, 42, 0.05)',
+  
+  // Shadows
+  shadow: 'rgba(5, 42, 43, 0.1)',
 };

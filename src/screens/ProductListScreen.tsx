@@ -129,8 +129,8 @@ const ProductListScreen = ({ navigation }: any) => {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <View>
-            <Text style={styles.headerSubtitle}>Machine Inventory</Text>
-            <Text style={styles.headerTitle}>Products</Text>
+            <Text style={styles.headerSubtitle}>Fleet Management</Text>
+            <Text style={styles.headerTitle}>Machines</Text>
           </View>
           <TouchableOpacity 
             style={styles.addBtn} 
@@ -145,10 +145,10 @@ const ProductListScreen = ({ navigation }: any) => {
             <MaterialIcons name="search" size={20} color={Colors.textSecondary} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search name or SKU..."
+              placeholder="Search by SKU or Model..."
               value={search}
               onChangeText={setSearch}
-              placeholderTextColor={Colors.textSecondary}
+              placeholderTextColor={Colors.textMuted}
               autoCorrect={false}
             />
           </View>
@@ -156,7 +156,7 @@ const ProductListScreen = ({ navigation }: any) => {
             style={styles.scanBtn}
             onPress={() => navigation.navigate('Scanner', { onScan: (data: string) => setSearch(data) })}
           >
-            <MaterialIcons name="qr-code-scanner" size={24} color={Colors.primary} />
+            <MaterialIcons name="qr-code-scanner" size={22} color={Colors.accent} />
           </TouchableOpacity>
         </View>
 
@@ -164,7 +164,7 @@ const ProductListScreen = ({ navigation }: any) => {
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
-            data={[{ id: null, name: 'All' }, ...(categories || [])]}
+            data={[{ id: null, name: 'All Assets' }, ...(categories || [])]}
             renderItem={({ item: cat }: any) => (
               <TouchableOpacity 
                 style={[styles.catChip, (selectedCategory === cat.id || (cat.id === null && selectedCategory === null)) && styles.catChipActive]}
@@ -183,7 +183,7 @@ const ProductListScreen = ({ navigation }: any) => {
 
       {isLoading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={Colors.accent} />
         </View>
       ) : (
         <FlatList
@@ -198,11 +198,10 @@ const ProductListScreen = ({ navigation }: any) => {
           refreshing={isLoading}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <MaterialIcons name="search-off" size={60} color={Colors.border} />
-              <Text style={styles.emptyText}>No machines found.</Text>
+              <MaterialIcons name="inventory" size={60} color={Colors.border} />
+              <Text style={styles.emptyText}>No machines matching your query.</Text>
             </View>
           }
-          // Memory optimizations for large lists
           initialNumToRender={6}
           maxToRenderPerBatch={10}
           windowSize={10}
@@ -227,9 +226,9 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     backgroundColor: Colors.white,
-    borderBottomLeftRadius: 35,
-    borderBottomRightRadius: 35,
-    shadowColor: Colors.primary,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.05,
     shadowRadius: 20,
@@ -244,73 +243,83 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerSubtitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '800',
+    color: Colors.accent,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 2,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '900',
     color: Colors.text,
+    letterSpacing: -1,
   },
   addBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 15,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
   },
   searchContainer: {
     flexDirection: 'row',
     paddingHorizontal: CONTAINER_PADDING + 10,
     marginBottom: 16,
-    gap: 10,
+    gap: 12,
   },
   searchBox: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.background,
-    borderRadius: 15,
-    paddingHorizontal: 12,
-    height: 48,
+    backgroundColor: Colors.card,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    height: 52,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
+    marginLeft: 10,
     fontSize: 14,
     color: Colors.text,
     fontWeight: '600',
   },
   scanBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 15,
-    backgroundColor: Colors.background,
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: Colors.card,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   categoryListContainer: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   categoryScroll: {
     paddingHorizontal: CONTAINER_PADDING + 10,
   },
   catChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: Colors.background,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 14,
+    backgroundColor: Colors.card,
     marginRight: 10,
     borderWidth: 1,
     borderColor: Colors.border,
   },
   catChipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
   catText: {
     fontSize: 13,
@@ -329,23 +338,25 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: Colors.surface,
-    borderRadius: 24,
+    borderRadius: 28,
     marginBottom: GAP,
     width: CARD_WIDTH,
-    padding: 8,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.04,
-    shadowRadius: 10,
+    shadowRadius: 12,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.01)',
   },
   imageContainer: {
     width: '100%',
-    height: CARD_WIDTH - 16,
-    borderRadius: (CARD_WIDTH - 16) / 2, // Perfect circle
+    height: CARD_WIDTH - 20,
+    borderRadius: (CARD_WIDTH - 20) / 2, // Perfect circle
     overflow: 'hidden',
-    backgroundColor: Colors.white,
-    padding: 8, // Padding ensures the "full pic" comes in the circle
+    backgroundColor: Colors.card,
+    padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -362,12 +373,13 @@ const styles = StyleSheet.create({
   },
   saleBadge: {
     position: 'absolute',
-    top: 8,
-    left: 8,
-    backgroundColor: Colors.error,
+    top: 5,
+    right: 5,
+    backgroundColor: Colors.accent,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
+    zIndex: 10,
   },
   saleText: {
     color: Colors.white,
@@ -387,43 +399,45 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   cardInfo: {
-    marginTop: 10,
-    paddingHorizontal: 4,
+    marginTop: 12,
+    paddingHorizontal: 6,
   },
   categoryText: {
-    fontSize: 10,
-    fontWeight: '800',
+    fontSize: 9,
+    fontWeight: '900',
     color: Colors.accent,
     textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   productName: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '800',
     color: Colors.text,
     marginTop: 2,
-    height: 36,
+    height: 38,
+    lineHeight: 18,
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 6,
+    marginTop: 8,
   },
   priceText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '900',
     color: Colors.primary,
   },
   oldPrice: {
     fontSize: 10,
-    color: Colors.textSecondary,
+    color: Colors.textMuted,
     textDecorationLine: 'line-through',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   stockDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -435,19 +449,20 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 40,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   retryBtn: {
-    marginTop: 20,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    marginTop: 24,
+    paddingHorizontal: 28,
+    paddingVertical: 14,
     backgroundColor: Colors.primary,
-    borderRadius: 12,
+    borderRadius: 16,
   },
   retryText: {
     color: Colors.white,
     fontWeight: '800',
     fontSize: 14,
+    letterSpacing: 1,
   },
 });
 

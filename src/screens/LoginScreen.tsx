@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Dimensions, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Dimensions, Alert, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Toast from 'react-native-toast-message';
@@ -98,8 +98,13 @@ const LoginScreen = ({ navigation }: any) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
+      {/* Dynamic Background */}
       <LinearGradient colors={Colors.gradient} style={StyleSheet.absoluteFill} />
+      <View style={styles.meshContainer}>
+        <View style={[styles.meshCircle, { top: -100, left: -50, backgroundColor: Colors.accent }]} />
+        <View style={[styles.meshCircle, { bottom: -150, right: -100, backgroundColor: Colors.secondary, width: 400, height: 400 }]} />
+      </View>
       
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -110,78 +115,83 @@ const LoginScreen = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.header}>
-            <Animated.View entering={FadeInUp.duration(1000).springify()}>
-              <View style={styles.logoContainer}>
+          <Animated.View entering={FadeInUp.duration(1000).springify()} style={styles.header}>
+            <View style={styles.logoWrapper}>
+              <View style={styles.logoInner}>
                 <Image 
                   source={require('../../assets/logo.jpeg')} 
                   style={styles.logo}
                   resizeMode="contain"
                 />
               </View>
-            </Animated.View>
-            <Animated.View entering={FadeInUp.delay(200).duration(800)}>
-              <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>Sign in to manage your inventory</Text>
-            </Animated.View>
-          </View>
+            </View>
+            <Text style={styles.brandName}>BD Machine Tools</Text>
+            <Text style={styles.brandSlogan}>Advanced Inventory Terminal</Text>
+          </Animated.View>
 
           <Animated.View 
-            entering={FadeInDown.delay(400).duration(800).springify()}
-            style={styles.formContainer}
+            entering={FadeInDown.delay(300).duration(1000).springify()}
+            style={styles.glassCard}
           >
-            <CustomInput
-              label="Email or Username"
-              placeholder="admin@bdmt.com"
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-              icon="person"
-            />
-            
-            <View style={styles.passwordWrapper}>
+            <Text style={styles.loginTitle}>Authorized Access</Text>
+            <Text style={styles.loginSubtitle}>Provide your workstation credentials</Text>
+
+            <View style={styles.form}>
               <CustomInput
-                label="Password"
-                placeholder="••••••••"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                icon="lock"
+                label="Identifier (Admin ID/Email)"
+                placeholder="e.g. admin_shakib"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+                icon="verified-user"
               />
-              <TouchableOpacity 
-                style={styles.eyeBtn}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <MaterialIcons 
-                  name={showPassword ? "visibility-off" : "visibility"} 
-                  size={22} 
-                  color={Colors.textSecondary} 
+              
+              <View style={styles.passwordWrapper}>
+                <CustomInput
+                  label="Secure Token / Password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  icon="vpn-key"
                 />
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity 
+                  style={styles.eyeBtn}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <MaterialIcons 
+                    name={showPassword ? "visibility-off" : "visibility"} 
+                    size={20} 
+                    color={Colors.textSecondary} 
+                  />
+                </TouchableOpacity>
+              </View>
 
-            <View style={styles.forgotRow}>
-              <TouchableOpacity style={styles.rememberMe} onPress={() => setRememberMe(!rememberMe)}>
-                <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
-                  {rememberMe && <MaterialIcons name="check" size={14} color={Colors.white} />}
-                </View>
-                <Text style={styles.rememberText}>Remember Me</Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Text style={styles.forgotText}>Forgot Password?</Text>
-              </TouchableOpacity>
-            </View>
+              <View style={styles.forgotRow}>
+                <TouchableOpacity style={styles.rememberMe} onPress={() => setRememberMe(!rememberMe)}>
+                  <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
+                    {rememberMe && <MaterialIcons name="check" size={14} color={Colors.white} />}
+                  </View>
+                  <Text style={styles.rememberText}>Save for 30 days</Text>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Text style={styles.forgotText}>Reset Token</Text>
+                </TouchableOpacity>
+              </View>
 
-            <CustomButton
-              title="SIGN IN"
-              onPress={handleLogin}
-              loading={loading}
-              style={styles.loginBtn}
-            />
+              <CustomButton
+                title="INITIATE LOGIN"
+                onPress={handleLogin}
+                loading={loading}
+                style={styles.loginBtn}
+              />
+            </View>
           </Animated.View>
 
           <Animated.View entering={FadeInUp.delay(600).duration(800)} style={styles.footer}>
-            <Text style={styles.footerNote}>© 2026 BD Machine Tools. Advanced Admin Terminal v1.2</Text>
+            <View style={styles.footerLine} />
+            <Text style={styles.footerNote}>SECURE NODE: {SITE_URL.replace('https://', '')}</Text>
+            <Text style={styles.versionText}>System Version 2.0.4-Gold</Text>
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -196,7 +206,7 @@ const LoginScreen = ({ navigation }: any) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalIconBox}>
-              <MaterialIcons name="report-problem" size={40} color={Colors.error} />
+              <MaterialIcons name="security" size={40} color={Colors.error} />
             </View>
             <Text style={styles.modalTitle}>{errorTitle}</Text>
             <Text style={styles.modalDesc}>{errorDesc}</Text>
@@ -204,7 +214,7 @@ const LoginScreen = ({ navigation }: any) => {
               style={styles.modalCloseBtn} 
               onPress={() => setErrorModalVisible(false)}
             >
-              <Text style={styles.modalCloseBtnText}>GOT IT</Text>
+              <Text style={styles.modalCloseBtnText}>ACKNOWLEDGE</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -218,60 +228,99 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.primary,
   },
+  meshContainer: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+    opacity: 0.4,
+  },
+  meshCircle: {
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    opacity: 0.5,
+  },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 30,
+    paddingHorizontal: 24,
     justifyContent: 'center',
-    paddingTop: 60,
+    paddingTop: 40,
     paddingBottom: 40,
   },
   header: {
     alignItems: 'center',
     marginBottom: 40,
   },
-  logoContainer: {
-    width: 160,
-    height: 160,
-    borderRadius: 80, // Perfect circle
+  logoWrapper: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    padding: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  logoInner: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 68,
     backgroundColor: Colors.white,
-    padding: 15, // Padding ensures the logo doesn't touch the circle edges
-    marginBottom: 24,
+    padding: 12,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
     shadowRadius: 20,
-    elevation: 8,
-    overflow: 'hidden',
+    elevation: 10,
   },
   logo: {
     width: '100%',
     height: '100%',
   },
-  title: {
-    fontSize: 32,
+  brandName: {
+    fontSize: 28,
     fontWeight: '900',
     color: Colors.white,
-    textAlign: 'center',
+    letterSpacing: 1,
   },
-  subtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.7)',
-    textAlign: 'center',
-    marginTop: 8,
-    fontWeight: '500',
+  brandSlogan: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.accentLight,
+    textTransform: 'uppercase',
+    letterSpacing: 3,
+    marginTop: 4,
   },
-  formContainer: {
-    backgroundColor: Colors.white,
-    borderRadius: 40,
-    padding: 24,
-    paddingTop: 32,
+  glassCard: {
+    backgroundColor: Colors.glass,
+    borderRadius: 35,
+    padding: 28,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
+    shadowOffset: { width: 0, height: 25 },
     shadowOpacity: 0.3,
-    shadowRadius: 30,
-    elevation: 20,
+    shadowRadius: 35,
+    elevation: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  loginTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: Colors.text,
+    textAlign: 'center',
+  },
+  loginSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 4,
+    fontWeight: '600',
+    marginBottom: 32,
+  },
+  form: {
+    gap: 4,
   },
   passwordWrapper: {
     position: 'relative',
@@ -279,7 +328,7 @@ const styles = StyleSheet.create({
   eyeBtn: {
     position: 'absolute',
     right: 16,
-    bottom: 24,
+    bottom: 22,
     padding: 10,
     zIndex: 10,
   },
@@ -287,54 +336,74 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 28,
+    marginTop: 8,
   },
   rememberMe: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
+    width: 18,
+    height: 18,
+    borderRadius: 5,
     borderWidth: 2,
     borderColor: Colors.border,
-    marginRight: 10,
+    marginRight: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkboxActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
   rememberText: {
-    fontSize: 13,
+    fontSize: 12,
     color: Colors.textSecondary,
-    fontWeight: '600',
-  },
-  forgotText: {
-    fontSize: 13,
-    color: Colors.primary,
     fontWeight: '700',
   },
+  forgotText: {
+    fontSize: 12,
+    color: Colors.accent,
+    fontWeight: '800',
+  },
   loginBtn: {
-    height: 64,
-    borderRadius: 20,
+    height: 60,
+    borderRadius: 18,
+    shadowColor: Colors.accent,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 8,
   },
   footer: {
     marginTop: 40,
+    alignItems: 'center',
+  },
+  footerLine: {
+    width: 40,
+    height: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 2,
+    marginBottom: 16,
   },
   footerNote: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.5)',
-    textAlign: 'center',
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.6)',
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  versionText: {
+    fontSize: 9,
+    color: 'rgba(255,255,255,0.4)',
     fontWeight: '600',
-    letterSpacing: 0.5,
+    marginTop: 4,
   },
   // Modal Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
@@ -342,26 +411,21 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     backgroundColor: Colors.white,
-    borderRadius: 30,
-    padding: 24,
+    borderRadius: 35,
+    padding: 30,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 15,
-    elevation: 10,
   },
   modalIconBox: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     backgroundColor: Colors.error + '10',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   modalTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '900',
     color: Colors.text,
     marginBottom: 12,
@@ -372,22 +436,26 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 30,
-    paddingHorizontal: 10,
+    marginBottom: 35,
   },
   modalCloseBtn: {
     width: '100%',
-    height: 56,
-    borderRadius: 16,
+    height: 60,
+    borderRadius: 20,
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
   },
   modalCloseBtnText: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '900',
     color: Colors.white,
-    letterSpacing: 1,
+    letterSpacing: 2,
   },
 });
 

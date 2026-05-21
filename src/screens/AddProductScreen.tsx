@@ -40,8 +40,8 @@ const AddProductScreen = ({ navigation }: any) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [4, 4], // Square aspect ratio for machine photos
-      quality: 0.7, // Slightly lower quality for faster upload
+      aspect: [1, 1], // Perfect square for circular frames
+      quality: 0.8,
     });
 
     if (!result.canceled) {
@@ -63,31 +63,23 @@ const AddProductScreen = ({ navigation }: any) => {
     });
 
     try {
-      console.log('Starting image upload to WordPress...');
-      // Use SITE_URL to construct WP Media API endpoint
       const wpMediaUrl = `${SITE_URL}/wp-json/wp/v2/media`;
-      
       const response = await fetch(wpMediaUrl, {
         method: 'POST',
         headers: {
           Authorization: api.defaults.headers.Authorization as string,
           'Accept': 'application/json',
-          // Note: fetch automatically sets the boundary for multipart/form-data
         },
         body: formData,
       });
 
       const data = await response.json();
-      
-      if (response.ok && data.source_url) {
-        console.log('Image uploaded successfully:', data.source_url);
+      if (response.ok && data.id) {
         return { id: data.id, src: data.source_url };
-      } else {
-        console.error('Upload failed with status:', response.status, data);
-        return null;
       }
+      return null;
     } catch (error) {
-      console.error('Network error during image upload:', error);
+      console.error('Image upload error:', error);
       return null;
     }
   };
@@ -113,7 +105,6 @@ const AddProductScreen = ({ navigation }: any) => {
         images: uploadedImage ? [{ id: uploadedImage.id }] : [],
       };
 
-      console.log('Creating product in WooCommerce...', productData);
       const response = await api.post('products', productData);
       return response.data;
     },
@@ -122,8 +113,8 @@ const AddProductScreen = ({ navigation }: any) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       Toast.show({
         type: 'success',
-        text1: 'Machine Added',
-        text2: 'The listing has been published successfully!',
+        text1: 'Listing Published',
+        text2: 'The machine is now live in inventory.',
         position: 'bottom'
       });
       navigation.goBack();
@@ -132,11 +123,10 @@ const AddProductScreen = ({ navigation }: any) => {
       setLoading(false);
       Toast.show({
         type: 'error',
-        text1: 'Entry Failed',
-        text2: 'Please check all fields and try again.',
+        text1: 'Submission Failed',
+        text2: 'Please verify all technical specifications.',
         position: 'bottom'
       });
-      console.error(error);
     }
   });
 
@@ -144,8 +134,8 @@ const AddProductScreen = ({ navigation }: any) => {
     if (!name || !regularPrice || !stock) {
       Toast.show({
         type: 'info',
-        text1: 'Incomplete Form',
-        text2: 'Model Name, Price, and Stock are required.',
+        text1: 'Data Required',
+        text2: 'Model Name, Price, and Stock are mandatory.',
         position: 'bottom'
       });
       return;
@@ -157,9 +147,9 @@ const AddProductScreen = ({ navigation }: any) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
+          <MaterialIcons name="arrow-back-ios" size={20} color={Colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>New Machine Entry</Text>
+        <Text style={styles.headerTitle}>New Machine</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -171,16 +161,19 @@ const AddProductScreen = ({ navigation }: any) => {
             <Image source={{ uri: image }} style={styles.previewImage} />
           ) : (
             <View style={styles.imagePlaceholder}>
-              <MaterialIcons name="add-a-photo" size={40} color={Colors.border} />
-              <Text style={styles.imageText}>Add Machine Photo</Text>
+              <View style={styles.pickerIconCircle}>
+                <MaterialIcons name="add-photo-alternate" size={32} color={Colors.accent} />
+              </View>
+              <Text style={styles.imageText}>Upload Asset Photo</Text>
+              <Text style={styles.imageSubtext}>1:1 Aspect Ratio Recommended</Text>
             </View>
           )}
         </TouchableOpacity>
 
         <View style={styles.form}>
           <CustomInput
-            label="Model Name / Title"
-            placeholder="e.g. Industrial Lathe Machine X1"
+            label="Machine Model / Name"
+            placeholder="e.g. CNC Lathe Professional v4"
             value={name}
             onChangeText={setName}
             icon="precision-manufacturing"
@@ -190,29 +183,29 @@ const AddProductScreen = ({ navigation }: any) => {
             <View style={{ flex: 1, marginRight: 8 }}>
               <View style={styles.inputWithIcon}>
                 <CustomInput
-                  label="SKU (Model No.)"
+                  label="SKU ID"
                   placeholder="BDMT-001"
                   value={sku}
                   onChangeText={setSku}
-                  icon="qr-code"
+                  icon="tag"
                 />
                 <TouchableOpacity 
                   style={styles.inputIcon}
                   onPress={() => navigation.navigate('Scanner', { onScan: (data: string) => setSku(data) })}
                 >
-                  <MaterialIcons name="qr-code-scanner" size={20} color={Colors.primary} />
+                  <MaterialIcons name="qr-code-scanner" size={18} color={Colors.accent} />
                 </TouchableOpacity>
               </View>
             </View>
             <View style={{ flex: 1, marginLeft: 8 }}>
               <CustomInput
-                label="Stock"
-                placeholder="10"
+                label="Units in Stock"
+                placeholder="0"
                 value={stock}
                 onChangeText={setStock}
                 // @ts-ignore
                 keyboardType="numeric"
-                icon="inventory"
+                icon="inventory-2"
               />
             </View>
           </View>
@@ -220,19 +213,19 @@ const AddProductScreen = ({ navigation }: any) => {
           <View style={styles.row}>
             <View style={{ flex: 1, marginRight: 8 }}>
               <CustomInput
-                label="Regular Price"
-                placeholder="15,000"
+                label="Base Price"
+                placeholder="0"
                 value={regularPrice}
                 onChangeText={setRegularPrice}
                 // @ts-ignore
                 keyboardType="numeric"
-                icon="payments"
+                icon="account-balance-wallet"
               />
             </View>
             <View style={{ flex: 1, marginLeft: 8 }}>
               <CustomInput
-                label="Offer Price"
-                placeholder="12,000"
+                label="Discount Price"
+                placeholder="0"
                 value={salePrice}
                 onChangeText={setSalePrice}
                 // @ts-ignore
@@ -242,7 +235,7 @@ const AddProductScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          <Text style={styles.label}>Select Category</Text>
+          <Text style={styles.label}>Categorization</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryList}>
             {categories?.map((cat: any) => (
               <TouchableOpacity 
@@ -259,8 +252,8 @@ const AddProductScreen = ({ navigation }: any) => {
 
           <View style={{ marginTop: 10 }}>
             <CustomInput
-              label="Machine Description"
-              placeholder="Enter technical specifications and details..."
+              label="Technical Description"
+              placeholder="Enter machine specifications, dimensions, and power requirements..."
               value={description}
               onChangeText={setDescription}
               // @ts-ignore
@@ -270,13 +263,13 @@ const AddProductScreen = ({ navigation }: any) => {
           </View>
 
           <CustomButton 
-            title={uploading ? "UPLOADING..." : "SAVE TO INVENTORY"} 
+            title={uploading ? "SYNCING..." : "PUBLISH TO CLOUD"} 
             onPress={handleSubmit} 
             loading={uploading}
             style={styles.submitBtn}
           />
         </View>
-        <View style={{ height: 50 }} />
+        <View style={{ height: 60 }} />
       </ScrollView>
     </View>
   );
@@ -295,26 +288,33 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  headerTitle: { fontSize: 20, fontWeight: '900', color: Colors.text },
-  backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: Colors.background, justifyContent: 'center', alignItems: 'center' },
+  headerTitle: { fontSize: 20, fontWeight: '900', color: Colors.text, letterSpacing: -0.5 },
+  backBtn: { width: 44, height: 44, borderRadius: 14, backgroundColor: Colors.card, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
   scrollContent: { padding: 24 },
   imagePicker: {
     width: '100%',
-    height: 200,
-    borderRadius: 24,
+    height: 220,
+    borderRadius: 32,
     backgroundColor: Colors.white,
     borderWidth: 2,
     borderColor: Colors.border,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 32,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+    elevation: 2,
   },
   previewImage: { width: '100%', height: '100%' },
-  imagePlaceholder: { alignItems: 'center' },
-  imageText: { marginTop: 10, fontSize: 14, fontWeight: '700', color: Colors.textSecondary },
-  form: { gap: 4 },
+  imagePlaceholder: { alignItems: 'center', padding: 20 },
+  pickerIconCircle: { width: 64, height: 64, borderRadius: 32, backgroundColor: Colors.accent + '10', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  imageText: { fontSize: 16, fontWeight: '800', color: Colors.text, marginBottom: 4 },
+  imageSubtext: { fontSize: 12, fontWeight: '600', color: Colors.textMuted },
+  form: { gap: 6 },
   row: { flexDirection: 'row' },
   inputWithIcon: {
     position: 'relative',
@@ -327,17 +327,19 @@ const styles = StyleSheet.create({
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.background,
-    borderRadius: 10,
+    backgroundColor: Colors.card,
+    borderRadius: 12,
     zIndex: 10,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
-  label: { fontSize: 14, fontWeight: '800', color: Colors.text, marginBottom: 12, marginLeft: 4 },
+  label: { fontSize: 13, fontWeight: '800', color: Colors.accent, marginBottom: 14, marginLeft: 4, textTransform: 'uppercase', letterSpacing: 1 },
   categoryList: { marginBottom: 24 },
-  catChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, backgroundColor: Colors.white, marginRight: 10, borderWidth: 1, borderColor: Colors.border },
-  catChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  catText: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
+  catChip: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 16, backgroundColor: Colors.white, marginRight: 10, borderWidth: 1, borderColor: Colors.border },
+  catChipActive: { backgroundColor: Colors.accent, borderColor: Colors.accent },
+  catText: { fontSize: 14, fontWeight: '700', color: Colors.textSecondary },
   catTextActive: { color: Colors.white },
-  submitBtn: { marginTop: 10, height: 60, borderRadius: 20 },
+  submitBtn: { marginTop: 15, height: 64, borderRadius: 20, shadowColor: Colors.accent, shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 15, elevation: 8 },
 });
 
 export default AddProductScreen;
